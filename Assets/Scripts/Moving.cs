@@ -15,6 +15,10 @@ public class Moving : MonoBehaviour
     private float _curPos;
 
     private Vector3 _pos;
+    [SerializeField] private Vector3 _prevPosition;
+    [SerializeField] private Vector3 _nextPosition;
+
+    private Vector3 _leftNode, _rightNode;
 
     void Start()
     {
@@ -23,53 +27,50 @@ public class Moving : MonoBehaviour
         start = false;
         speed_fail = 0;
         sphere.GetComponent<Animator>().enabled = false;
-        _prevPos = (int) transform.position.y;
+        _prevPos = (int)transform.position.y;
         _changeDirection = false;
+        _nextPosition = transform.position;
+        GetNextNode();
     }
+    
+
     void Update()
     {
-        camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(transform.position.x, transform.position.y - 3.5f, transform.position.z), 1 * Time.deltaTime);
+        camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(transform.position.x, transform.position.y - 3.5f, transform.position.z),  Time.deltaTime);
         // if (Input.GetMouseButtonDown(0)) ChangeDirection();
         if (start) {
             sphere.GetComponent<Animator>().enabled = true;
             start_speed = speed;
-            Move_Init();
-            //if (dead)
-            //{
-            //    Dead_Init();
-            //}
-            //else
-            //{
-            //    Move_Init();
-            //}
+            mov_left = _changeDirection;
+            //Move_Init();
+
+            if (dead)
+            {
+                Dead_Init();
+            }
+            else
+            {
+                Move_Init();
+            }
         }
         else
         {
             start_speed = 0;
         }
 
-        if (transform.position.y <= _prevPos-1)
+        if (transform.position.y <= _prevPos-0.75f)
         {
-            _prevPos = (int)transform.position.y;
-            mov_left = _changeDirection;
+            _prevPos--;
+            GetNextNode();
         }
-
-        
-
     }
     
+    //Moving to next node
     public void Move_Init()
     {
-        
-        if (mov_left)
-        {
-            transform.Translate(-speed * Time.deltaTime, -speed * Time.deltaTime, 0);
-        }
-        else
-        {
-            transform.Translate(0, -speed * Time.deltaTime, -speed * Time.deltaTime);
-        }
+        transform.position = Vector3.MoveTowards(transform.position, _nextPosition, speed*Time.deltaTime);
     }
+
     public void Dead_Init()
     {
         UI.retry_active = true;
@@ -82,9 +83,36 @@ public class Moving : MonoBehaviour
     }
 
 
+    //Get node for next move
+    public void GetNextNode()
+    {
+        _prevPosition = _nextPosition;
+        _leftNode = _prevPosition - Vector3.right + Vector3.down;
+        _rightNode = _prevPosition - Vector3.forward + Vector3.down;
+        if (mov_left)
+        {
+            _nextPosition = _prevPosition - Vector3.right + Vector3.down;
+        }
+        else
+        {
+            _nextPosition = _prevPosition - Vector3.forward + Vector3.down;
+            
+        }
+    }
+
     public void ChangeDirection()
     {
         _changeDirection = !_changeDirection;
+        mov_left = _changeDirection;
+        if (mov_left)
+        {
+            _nextPosition = _leftNode;
+        }
+        else
+        {
+            _nextPosition = _rightNode;
+
+        }
     }
 
     private void OnTriggerEnter(Collider other)
