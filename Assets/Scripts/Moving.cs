@@ -5,7 +5,7 @@ using UnityEngine;
 public class Moving : MonoBehaviour
 {
     public float speed;
-    public static bool mov_left,dead,start;
+    public bool mov_left,dead,start;
     public GameObject sphere,part,camera;
     float start_speed, speed_fail;
 
@@ -15,13 +15,21 @@ public class Moving : MonoBehaviour
     private float _curPos;
 
     private Vector3 _pos;
-    [SerializeField] private Vector3 _prevPosition;
-    [SerializeField] private Vector3 _nextPosition;
+    private Vector3 _prevPosition;
+    private Vector3 _nextPosition;
 
     private Vector3 _leftNode, _rightNode;
 
+    private PlayerDeadTrigger _playerDeadTrigger;
+
+    private AudioSource _audioSource;
+    private Animator _animator;
+
     void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
+        _animator = sphere.GetComponent<Animator>();
+        _playerDeadTrigger = GetComponentInChildren<PlayerDeadTrigger>();
         mov_left = false;
         dead = false;
         start = false;
@@ -31,40 +39,51 @@ public class Moving : MonoBehaviour
         _changeDirection = false;
         _nextPosition = transform.position;
         GetNextNode();
+        
     }
     
 
     void Update()
     {
-        camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(transform.position.x, transform.position.y - 3.5f, transform.position.z),  Time.deltaTime);
-        // if (Input.GetMouseButtonDown(0)) ChangeDirection();
-        if (start) {
-            sphere.GetComponent<Animator>().enabled = true;
-            start_speed = speed;
-            mov_left = _changeDirection;
-            //Move_Init();
 
-            if (dead)
+        if (start)
+        {
+            //if (_animator != null) 
+            
+            if (!dead)
+            {
+                _animator.enabled = true;
+                start_speed = speed;
+                mov_left = _changeDirection;
+                Move_Init();
+                if (transform.position.y <= _prevPos - 0.75f)
+                {
+                    _prevPos--;
+                    GetNextNode();
+                    if (_animator != null)
+                        _animator.SetTrigger("Start");
+                    _audioSource.Play();
+                }
+            }
+            
+
+            //dead = _playerDeadTrigger.CheckGround();
+            if (!_playerDeadTrigger.CheckGround())
             {
                 Dead_Init();
             }
-            else
-            {
-                Move_Init();
-            }
+            
         }
         else
         {
             start_speed = 0;
         }
 
-        if (transform.position.y <= _prevPos-0.75f)
-        {
-            _prevPos--;
-            GetNextNode();
-        }
+        
     }
     
+    
+
     //Moving to next node
     public void Move_Init()
     {
@@ -73,31 +92,49 @@ public class Moving : MonoBehaviour
 
     public void Dead_Init()
     {
-        UI.retry_active = true;
-        sphere.SetActive(false);
-        part.SetActive(true);
-        //gameObject.GetComponent<MeshRenderer>().enabled = true;
-        speed_fail = Mathf.Lerp(speed_fail, -40, 4 * Time.deltaTime);
-        transform.Translate(0, speed_fail * Time.deltaTime, 0);
-        Destroy(gameObject, 1);
+        if (!dead)
+        {
+            UI.retry_active = true;
+            //sphere.SetActive(false);
+            part.SetActive(true);
+            part.transform.SetParent(null);
+            Destroy(_animator);
+            GetComponent<Rigidbody>().useGravity = true;
+            GetComponent<Rigidbody>().isKinematic = false;
+
+            //gameObject.GetComponent<MeshRenderer>().enabled = true;
+            // speed_fail = Mathf.Lerp(speed_fail, -40, 4 * Time.deltaTime);
+            //transform.Translate(0, speed_fail * Time.deltaTime, 0);
+            Destroy(gameObject, 3);
+        }
+
+        dead = true;
+
     }
+    
 
-
-    //Get node for next move
     public void GetNextNode()
     {
-        _prevPosition = _nextPosition;
-        _leftNode = _prevPosition - Vector3.right + Vector3.down;
-        _rightNode = _prevPosition - Vector3.forward + Vector3.down;
-        if (mov_left)
+        if (_playerDeadTrigger.CheckGround())
         {
-            _nextPosition = _prevPosition - Vector3.right + Vector3.down;
+            _prevPosition = _nextPosition;
+            _leftNode = _prevPosition - Vector3.right + Vector3.down;
+            _rightNode = _prevPosition - Vector3.forward + Vector3.down;
+            if (mov_left)
+            {
+                _nextPosition = _prevPosition - Vector3.right + Vector3.down;
+            }
+            else
+            {
+                _nextPosition = _prevPosition - Vector3.forward + Vector3.down;
+
+            }
         }
         else
         {
-            _nextPosition = _prevPosition - Vector3.forward + Vector3.down;
-            
+            Dead_Init();
         }
+        
     }
 
     public void ChangeDirection()
@@ -121,11 +158,20 @@ public class Moving : MonoBehaviour
         {
             other.GetComponent<Cube_Detector>().Change_mat();
         }
-        else if(other.GetComponent<Dead>())
+
+        if (other.GetComponent<CubeVictory>())
         {
-            Dead_Init();
+            Debug.Log("Victory");
         }
+        //else if(other.GetComponent<Dead>())
+        //{
+        //    Dead_Init();
+        //}
     }
 
+    private void PlaySFX()
+    {
+
+    }
 
 }

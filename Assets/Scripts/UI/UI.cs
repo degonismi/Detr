@@ -7,8 +7,11 @@ public class UI : MonoBehaviour
     public GameObject retry_button,start_button;
     public static bool retry_active;
 
+    private Moving _moving;
+
     void Start()
     {
+        _moving = FindObjectOfType<Moving>();
         retry_active = false;
         retry_button.SetActive(false);
     }
@@ -29,7 +32,7 @@ public class UI : MonoBehaviour
     }
     public void Starting()
     {
-        Moving.start = true;
+        _moving.start = true;
         start_button.SetActive(false);
     }
 }

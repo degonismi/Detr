@@ -8,18 +8,19 @@ public class Dead : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GG = GameObject.FindGameObjectWithTag("Player");
+       // GG = GameObject.FindGameObjectWithTag("Player");
+       GetComponent<MeshRenderer>().enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GG != null)
-        {
-            if (Vector3.Distance(GG.transform.position, transform.position) <= 0.1f)
-            {
-                Moving.dead = true;
-            }
-        }
+        //if (GG != null)
+        //{
+        //    if (Vector3.Distance(GG.transform.position, transform.position) <= 0.1f)
+        //    {
+        //        Moving.dead = true;
+        //    }
+        //}
     }
 }
