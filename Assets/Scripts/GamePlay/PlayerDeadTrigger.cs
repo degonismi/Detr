@@ -7,7 +7,7 @@ public class PlayerDeadTrigger : MonoBehaviour
 
     public bool CheckGround()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.3f);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.05f);
         bool _grounded = false;
         foreach (var col in colliders)
         {

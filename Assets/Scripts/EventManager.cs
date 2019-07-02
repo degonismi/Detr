@@ -10,6 +10,7 @@ public class EventManager : MonoBehaviour
     public Action OnDeadAction;
     public Action OnVictoryAction;
 
+    public Action OnJumpAction;
     public Action OnLevelStart;
     //public Action OnDeadAction;
 

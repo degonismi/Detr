@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8324427276274397604}
   - component: {fileID: 1663667365003003287}
   - component: {fileID: 3051668358517200266}
+  - component: {fileID: 1862936038749049549}
   m_Layer: 0
   m_Name: Jump
   m_TagString: Untagged
@@ -104,3 +105,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a06415bc1ceb345b9adc8822dabcd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1862936038749049549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6509966156393799241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7601480b3237b9e4e82e8d0db8e3b0fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cube_touched: {fileID: 0}

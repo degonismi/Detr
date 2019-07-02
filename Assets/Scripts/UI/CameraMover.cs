@@ -4,24 +4,27 @@ using UnityEngine;
 
 public class CameraMover : MonoBehaviour
 {
-    private Transform _transform;
     [SerializeField] private Transform _targetTransform;
+    private Moving _moving;
 
     private void Start()
     {
-        _transform = gameObject.transform;
+        _moving = FindObjectOfType<Moving>();
         EventManager.instance.OnDeadAction += StopFollowingWithDelay;
+        EventManager.instance.OnJumpAction += CameraAnimation;
     }
 
     private void OnDestroy()
     {
         EventManager.instance.OnDeadAction -= StopFollowingWithDelay;
+        EventManager.instance.OnJumpAction -= CameraAnimation;
     }
 
     private void Update()
     {
-        if(_targetTransform!=null)
-        _transform.position = Vector3.Lerp(_transform.position, _targetTransform.position, Time.deltaTime);
+        if(_targetTransform)
+            transform.position = Vector3.Lerp(transform.position, _targetTransform.position, Time.deltaTime * _moving.speed);
+            //transform.position = Vector3.MoveTowards(transform.position, _targetTransform.position, Time.deltaTime * _moving.speed);
     }
 
     private void StopFollowing()
@@ -33,4 +36,10 @@ public class CameraMover : MonoBehaviour
     {
         Invoke("StopFollowing",1f );
     }
+
+    private void CameraAnimation()
+    {
+        GetComponent<Animator>().SetTrigger("Start");
+    }
+
 }

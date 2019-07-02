@@ -5,18 +5,18 @@ using UnityEngine;
 public class Moving : MonoBehaviour
 {
     public float speed;
-    public bool mov_left,dead,start;
+    public bool mov_left,dead,start, CanChange;
     public GameObject sphere,part;
     float start_speed, speed_fail;
 
 
 
     public bool _changeDirection;
-    public bool IsJump;
     public int JumpStep;
 
     private int _prevPos;
     private float _curPos;
+    [SerializeField] private float _timerForInput;
 
     private Vector3 _pos;
     private Vector3 _prevPosition;
@@ -30,6 +30,9 @@ public class Moving : MonoBehaviour
     private AudioSource _audioSource;
     private Animator _animator;
 
+    private Coroutine _inputDelayCoroutine;
+    private Coroutine _movingCoroutine;
+
     void Start()
     {
         start_speed = speed;
@@ -39,155 +42,99 @@ public class Moving : MonoBehaviour
         mov_left = false;
         dead = false;
         start = false;
-        IsJump = false;
-        speed_fail = 0;
         sphere.GetComponent<Animator>().enabled = false;
         _prevPos = (int)transform.position.y;
         _changeDirection = false;
         _nextPosition = transform.position;
         GetNextNode();
-        
+        CanChange = true;
+
     }
     
 
     void Update()
     {
-
+        if (_timerForInput > 0)
+        {
+            _timerForInput -= Time.deltaTime;
+        }
         if (start)
         {
             if (!dead)
             {
                 _animator.enabled = true;
-                start_speed = speed;
                 mov_left = _changeDirection;
-                if (transform.position.y <= _prevPos - 0.9f)
+                if (transform.position.y <= _prevPos - 0.85f)
                 {
                     
-                    if (IsJump)
-                    {
-                        speed = start_speed * 2;
-                       // GetNextNodeIfJump(3);
-                       //GetNextNode();
-                        //StartCoroutine(Jump());
-                        //JumpStep--;
-                        //_prevPos;
-                        //IsJump = false;
-                    }
-                    else
-                    {
-                        StopAllCoroutines();
-                        speed = start_speed;
-                        GetNextNode();
-                        StartCoroutine(Run());
-                    }
-
-
-
-                    //if (IsJump)
+                    //if (!_playerDeadTrigger.CheckGround())
                     //{
-                    //    if (JumpStep > 1)
-                    //    {
-                    //        JumpStep--;
-                    //    }
-                    //    else
-                    //    {
-                    //        JumpStep = 0;
-                    //        IsJump = false;
-                    //        GetNextNode();
-                    //        speed = 3;
-                    //        Jump_Init(3);
-                    //        StartCoroutine(Run());
-                    //    }
+                    //   Dead_Init();
                     //}
                     //else
                     //{
+                    //if (_movingCoroutine!=null)
+                    //{
+                    //if (_movingCoroutine != null)
+                    //    StopCoroutine(_movingCoroutine);
+                    //    _movingCoroutine = null;
+                    StopAllCoroutines();
+                        GetNextNode();
+                        if (JumpStep > 0)
+                        {
 
-                    //    GetNextNode();
-                    //    speed = 3;
-                    //    //GetNextNode();
-                    //    Move_Init();
-                    //}
-                    _prevPos--;
+                            //speed = 9;
+                            Debug.Log("-"+ JumpStep);
+                            JumpStep--;
+                        }
+                        else
+                        {
+                            speed = 3;
+                            if (_animator != null)
+                                _animator.SetTrigger("Start");
 
-                    ////if(!IsJump)
+                        }
 
+                        StartCoroutine(Run());
 
-                    if (_animator != null)
-                        _animator.SetTrigger("Start");
-                    _audioSource.Play();
+                        _prevPos--;
+                        _audioSource.Play();
+                    
                 }
-               // Move_Init();
-            }
-            
-
-            //dead = _playerDeadTrigger.CheckGround();
-            if (!_playerDeadTrigger.CheckGround() && !IsJump)
-            {
-                Dead_Init();
             }
             
         }
-        else
-        {
-            start_speed = 0;
-        }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (!start)
-            {
-                start = true;
-                StartCoroutine(Run());
-            }
-            
-        }
-        
     }
 
-
+    IEnumerator InputDelay()
+    {
+        yield return new  WaitForSeconds(0.25f);
+        CanChange = true;
+       // _inputDelayCoroutine = null;
+    }
 
      IEnumerator Run()
-    {
-        while (transform.position.y>_prevPos-1)
+     {
+        while (true)
         {
             transform.position = Vector3.MoveTowards(transform.position, _nextPosition, speed * Time.deltaTime);
             yield return null;
         }
-
-    }
-
-     IEnumerator Jump()
-     {
-         while (true)
-         {
-             transform.position = Vector3.MoveTowards(transform.position, _nextPosition, speed * Time.deltaTime);
-            yield return null;
-         }
-
-         
      }
-
-    //Moving to next node
+    
+    
     public void Move_Init()
     {
-        transform.position = Vector3.MoveTowards(transform.position, _nextPosition, speed * Time.deltaTime);
+        StartCoroutine(Run());
+            
     }
-
-    public void Jump_Init(int nodes)
-    {
-        JumpStep = nodes;
-        //int l = ++nodes;
-        //IsJump = true;
-        //GetNextNodeIfJump(nodes);
-        transform.position = Vector3.MoveTowards(transform.position, _nextPosition, speed * Time.deltaTime * nodes);
-    }
-
-
+    
 
     public void Dead_Init()
     {
         if (!dead)
         {
+            dead = true;
             StopAllCoroutines();
             EventManager.instance.OnDeadAction?.Invoke();
             UI.retry_active = true;
@@ -198,39 +145,12 @@ public class Moving : MonoBehaviour
             GetComponent<Collider>().isTrigger = false;
             GetComponent<Rigidbody>().useGravity = true;
             GetComponent<Rigidbody>().isKinematic = false;
-
-            //gameObject.GetComponent<MeshRenderer>().enabled = true;
-            // speed_fail = Mathf.Lerp(speed_fail, -40, 4 * Time.deltaTime);
-            //transform.Translate(0, speed_fail * Time.deltaTime, 0);
+            
             Destroy(gameObject, 3);
         }
 
-        dead = true;
-
     }
-
-    public void GetNextNodeIfJump(int jumpStep)
-    {
-        int k = jumpStep;
-        _prevPosition = _nextPosition;
-        //speed *= k;
-        IsJump = true;
-        JumpStep = jumpStep;
-        // JumpStep;
-        if (mov_left)
-        {
-            _nextPosition = _prevPosition - Vector3.right * k + Vector3.down * k;
-        }
-        else
-        {
-            _nextPosition = _prevPosition - Vector3.forward * k + Vector3.down * k;
-
-        }
-        //_leftNode = _prevPosition - Vector3.right * k + Vector3.down * k;
-        //_rightNode = _prevPosition - Vector3.forward * k + Vector3.down * k;
-        Debug.Log(_rightNode + " | "+ _leftNode);
-       
-    }
+    
 
     public void GetNextNode()
     {
@@ -246,29 +166,49 @@ public class Moving : MonoBehaviour
             else
             {
                 _nextPosition = _prevPosition - Vector3.forward + Vector3.down;
-
             }
         }
-        //else
-        //{
-        //    Dead_Init();
-        //}
-        
+        else
+        {
+            Dead_Init();
+        }
+
     }
 
     public void ChangeDirection()
     {
-        _changeDirection = !_changeDirection;
-        mov_left = _changeDirection;
-        if (mov_left)
+        if (!start)
         {
-            _nextPosition = _leftNode;
+            start = true;
+            StartCoroutine(Run());
         }
-        else
-        {
-            _nextPosition = _rightNode;
 
+        
+        
+
+        if (_timerForInput<=0)
+        {
+            //CanChange = false;
+            _timerForInput = 0.3f;
+            //_inputDelayCoroutine = StartCoroutine(InputDelay());
+            _changeDirection = !_changeDirection;
+            mov_left = _changeDirection;
+            if (!dead)
+            {
+                if (mov_left)
+                {
+                    _nextPosition = _leftNode;
+                }
+                else
+                {
+                    _nextPosition = _rightNode;
+
+                }
+            }
+            
+            
         }
+        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -288,26 +228,15 @@ public class Moving : MonoBehaviour
 
         if (other.GetComponent<CubeJump>())
         {
-            StopAllCoroutines();
-            GetNextNodeIfJump(3);
-            StartCoroutine(Jump());
-            if (!IsJump)
-                IsJump = true;
-            //J//umpStep = 3;
-            Debug.Log("Jump");
+             StopAllCoroutines();
+            EventManager.instance.OnJumpAction?.Invoke();
+            JumpStep = 2;
+            speed = 9;
+            StartCoroutine(Run());
         }
 
-
-
-        //else if(other.GetComponent<Dead>())
-        //{
-        //    Dead_Init();
-        //}
+        
     }
-
-    private void PlaySFX()
-    {
-         
-    }
+    
 
 }
