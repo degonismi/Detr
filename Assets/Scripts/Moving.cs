@@ -64,7 +64,7 @@ public class Moving : MonoBehaviour
             {
                 _animator.enabled = true;
                 mov_left = _changeDirection;
-                if (transform.position.y <= _prevPos - 0.85f)
+                if (transform.position.y <= _prevPos - 1f)
                 {
                     
                     //if (!_playerDeadTrigger.CheckGround())
