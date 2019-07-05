@@ -13,8 +13,9 @@ GameObject:
   - component: {fileID: 166263423245969917}
   - component: {fileID: 166263423245969916}
   - component: {fileID: 166263423245969919}
+  - component: {fileID: 6253031291570346037}
   m_Layer: 0
-  m_Name: Iron_Cube_Boost
+  m_Name: Victory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -106,6 +107,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Cube_touched: {fileID: 2100000, guid: 3b5cdbc66f919284d819971fdeb1ef28, type: 2}
+--- !u!114 &6253031291570346037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166263423245969905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14456e3cd07363b4196f0db6a28d5b3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5935901206378114606
 PrefabInstance:
   m_ObjectHideFlags: 0

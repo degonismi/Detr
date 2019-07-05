@@ -1,18 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public class LevelManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+   public LevelsSO LevelsSO;
+   private int _levelNumber;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   public GameObject GetLevelPrefab(int i)
+   {
+      GameObject level = LevelsSO.Levels[i].LevelPrefab;
+      return level;
+   }
+
+   private void Start()
+   {
+      _levelNumber = UnityEngine.Random.Range(0, 4);
+      Instantiate(GetLevelPrefab(_levelNumber));
+   }
 }

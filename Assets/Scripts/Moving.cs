@@ -48,6 +48,7 @@ public class Moving : MonoBehaviour
         _nextPosition = transform.position;
         GetNextNode();
         CanChange = true;
+        mov_left = _changeDirection;
 
     }
     
@@ -62,22 +63,12 @@ public class Moving : MonoBehaviour
         {
             if (!dead)
             {
+                mov_left = _changeDirection;
                 _animator.enabled = true;
                 mov_left = _changeDirection;
                 if (transform.position.y <= _prevPos - 1f)
                 {
                     
-                    //if (!_playerDeadTrigger.CheckGround())
-                    //{
-                    //   Dead_Init();
-                    //}
-                    //else
-                    //{
-                    //if (_movingCoroutine!=null)
-                    //{
-                    //if (_movingCoroutine != null)
-                    //    StopCoroutine(_movingCoroutine);
-                    //    _movingCoroutine = null;
                     StopAllCoroutines();
                         GetNextNode();
                         if (JumpStep > 0)
@@ -108,9 +99,8 @@ public class Moving : MonoBehaviour
 
     IEnumerator InputDelay()
     {
-        yield return new  WaitForSeconds(0.25f);
+        yield return new  WaitForSeconds(0.15f);
         CanChange = true;
-       // _inputDelayCoroutine = null;
     }
 
      IEnumerator Run()
@@ -177,39 +167,38 @@ public class Moving : MonoBehaviour
 
     public void ChangeDirection()
     {
+        
+            if (_timerForInput<=0)
+            {
+                _timerForInput = 0.075f;
+                _changeDirection = !_changeDirection;
+           
+                if (!dead)
+                {
+                    if (mov_left)
+                    {
+                        _nextPosition = _leftNode;
+                    }
+                    else
+                    {
+                        _nextPosition = _rightNode;
+
+                    }
+                }
+            }
+        
+    }
+
+    public void StartJump()
+    {
+        
         if (!start)
         {
             start = true;
             StartCoroutine(Run());
         }
-
-        
-        
-
-        if (_timerForInput<=0)
-        {
-            //CanChange = false;
-            _timerForInput = 0.3f;
-            //_inputDelayCoroutine = StartCoroutine(InputDelay());
-            _changeDirection = !_changeDirection;
-            mov_left = _changeDirection;
-            if (!dead)
-            {
-                if (mov_left)
-                {
-                    _nextPosition = _leftNode;
-                }
-                else
-                {
-                    _nextPosition = _rightNode;
-
-                }
-            }
-            
-            
-        }
-        
     }
+    
 
     private void OnTriggerEnter(Collider other)
     {
@@ -220,7 +209,7 @@ public class Moving : MonoBehaviour
 
         if (other.GetComponent<CubeVictory>())
         {
-            dead = true;
+            
             StopAllCoroutines();
             EventManager.instance.OnVictoryAction?.Invoke();
             Debug.Log("Victory");

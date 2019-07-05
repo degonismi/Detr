@@ -10,12 +10,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _menuPanel;
     [SerializeField] private GameObject _levelSelectionPanel;
 
+    private Moving _moving;
 
 
     private void Start()
     {
         EventManager.instance.OnDeadAction += Dead;
         EventManager.instance.OnVictoryAction += Victory;
+        _moving = FindObjectOfType<Moving>();
 
     }
 
@@ -36,5 +38,24 @@ public class UIManager : MonoBehaviour
         _gamePlayPanel.SetActive(false);
         _victoryPanel.SetActive(true);
     }
+
+    public void StartGame()
+    {
+        _moving.StartJump();
+        
+    }
+
+    public void ChangeDirection()
+    {
+        _moving.ChangeDirection();
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 
 }

@@ -8,9 +8,6 @@ public class LevelsSO : ScriptableObject
 {
     public Level[] Levels;
     
-
-
-
     [Serializable]
     public class Level
     {
